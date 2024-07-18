@@ -17,7 +17,7 @@ const TaskList = ({ darkMode }) => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://127.0.0.1:8000/api/alltasks');
+      const response = await axios.get('https://taskmanagementb.vercel.app/api/alltasks');
       setTasks(response.data);
       console.log('Fetched tasks:', response.data);
       setError(null);
@@ -31,7 +31,7 @@ const TaskList = ({ darkMode }) => {
 
   const addTask = async (task) => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/Createtasks', task);
+      const response = await axios.post('https://taskmanagementb.vercel.app/api/Createtasks', task);
       setTasks([...tasks, response.data]);
     } catch (err) {
       console.error('Failed to add task:', err);
@@ -41,7 +41,7 @@ const TaskList = ({ darkMode }) => {
 
   const updateTask = async (id, status) => {
     try {
-      const response = await axios.put(`http://127.0.0.1:8000/api/updatetasks/${id}`, { status });
+      const response = await axios.put(`https://taskmanagementb.vercel.app/api/updatetasks/${id}`, { status });
       setTasks(tasks.map(task => task.id === id ? response.data : task));
     } catch (err) {
       console.error('Failed to update task:', err);
@@ -51,7 +51,7 @@ const TaskList = ({ darkMode }) => {
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/Deletetask/${id}`);
+      await axios.delete(`https://taskmanagementb.vercel.app/api/Deletetask/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
     } catch (err) {
       console.error('Failed to delete task:', err);
