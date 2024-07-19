@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircleIcon, TrashIcon  } from '@heroicons/react/solid';
+import { CheckCircleIcon, TrashIcon } from '@heroicons/react/solid';
+import { format } from 'date-fns';
 
 const TaskItem = ({ task, onUpdateTask, onDeleteTask, darkMode }) => {
+  const formattedDate = format(new Date(task.created_at), 'PPP p');
+
   return (
     <motion.div
       className={`${darkMode ? 'bg-dark-200' : 'bg-white'} shadow-md rounded px-8 pt-6 pb-8 mb-4`}
@@ -11,6 +14,7 @@ const TaskItem = ({ task, onUpdateTask, onDeleteTask, darkMode }) => {
     >
       <h3 className={`text-lg font-semibold mb-2 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>{task.title}</h3>
       <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-4`}>{task.description}</p>
+      <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'} mb-4`}>Created At: {formattedDate}</p>
       <div className="flex justify-between items-center">
         <span className={`px-2 py-1 rounded text-sm ${
           task.status === 'todo' ? 'bg-yellow-200 text-yellow-800' :
