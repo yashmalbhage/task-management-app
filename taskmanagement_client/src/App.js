@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import TaskList from './components/TaskList';
 import { MoonIcon, SunIcon } from '@heroicons/react/solid';
+import Login from './components/Login';
+import Register from './components/Register';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-dark-100' : 'bg-gray-100'}`}>
@@ -20,7 +24,25 @@ function App() {
       </header>
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <TaskList darkMode={darkMode} />
+          {authenticated ? (
+            <TaskList darkMode={darkMode} />
+          ) : (
+            showRegister ? (
+              <Register setAuthenticated={setAuthenticated} darkMode={darkMode} />
+            ) : (
+              <Login setAuthenticated={setAuthenticated} darkMode={darkMode} />
+            )
+          )}
+          {!authenticated && (
+            <div className="text-center mt-4">
+              <button
+                onClick={() => setShowRegister(!showRegister)}
+                className={`text-blue-500 underline ${darkMode ? 'hover:text-blue-300' : 'hover:text-blue-700'}`}
+              >
+                {showRegister ? 'Back to Login' : 'Register'}
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

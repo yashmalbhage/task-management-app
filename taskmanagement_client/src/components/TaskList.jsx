@@ -17,9 +17,10 @@ const TaskList = ({ darkMode }) => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://taskmanagementb.vercel.app/api/tasks');
+      const response = await axios.get('https://taskmanagementb.vercel.app/api/tasks', {
+        withCredentials: true // Important for sending cookies with the request
+      });
       setTasks(response.data);
-      console.log('Fetched tasks:', response.data);
       setError(null);
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
@@ -31,7 +32,9 @@ const TaskList = ({ darkMode }) => {
 
   const addTask = async (task) => {
     try {
-      const response = await axios.post('https://taskmanagementb.vercel.app/api/tasks', task);
+      const response = await axios.post('https://taskmanagementb.vercel.app/api/tasks', task, {
+        withCredentials: true // Important for sending cookies with the request
+      });
       setTasks([...tasks, response.data]);
     } catch (err) {
       console.error('Failed to add task:', err);
@@ -41,7 +44,9 @@ const TaskList = ({ darkMode }) => {
 
   const updateTask = async (id, status) => {
     try {
-      const response = await axios.put(`https://taskmanagementb.vercel.app/api/tasks/${id}`, { status });
+      const response = await axios.put(`https://taskmanagementb.vercel.app/api/tasks/${id}`, { status }, {
+        withCredentials: true // Important for sending cookies with the request
+      });
       setTasks(tasks.map(task => task.id === id ? response.data : task));
     } catch (err) {
       console.error('Failed to update task:', err);
@@ -51,7 +56,9 @@ const TaskList = ({ darkMode }) => {
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`https://taskmanagementb.vercel.app/api/task/${id}`);
+      await axios.delete(`https://taskmanagementb.vercel.app/api/task/${id}`, {
+        withCredentials: true // Important for sending cookies with the request
+      });
       setTasks(tasks.filter(task => task.id !== id));
     } catch (err) {
       console.error('Failed to delete task:', err);
@@ -74,9 +81,7 @@ const TaskList = ({ darkMode }) => {
     <div className="space-y-6">
       {error && <div className={`${darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-700'} border border-red-400 px-4 py-3 rounded relative`} role="alert">{error}</div>}
 
-      
       <div className="mb-4">
-        
         <select
           value={filter}
           onChange={handleFilterChange}
@@ -114,7 +119,6 @@ const TaskList = ({ darkMode }) => {
         </div>
       </div>
     </div>
- 
   );
 };
 
