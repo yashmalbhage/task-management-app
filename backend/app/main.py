@@ -11,7 +11,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-      allow_origins=["https://predixion-ai-assi.vercel.ap", "http://localhost:3000/"], 
+      allow_origins=["https://predixion-ai-assi.vercel.app/", "http://localhost:3000/"], 
    
     allow_credentials=True,
     allow_methods=["*"],
