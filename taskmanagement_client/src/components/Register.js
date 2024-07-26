@@ -14,7 +14,7 @@ const Register = ({ setAuthenticated, darkMode }) => {
       return;
     }
     try {
-      const response = await axios.post(' http://127.0.0.1:8000/api/register', {
+      const response = await axios.post('https://taskmanagementb.vercel.app/api/register', {
         username,
         password
       });
