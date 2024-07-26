@@ -16,10 +16,24 @@ const TaskList = ({ darkMode }) => {
     fetchTasks();
   }, []);
 
+  const getToken = () => {
+    const token = localStorage.getItem('token');
+    console.log('Retrieved token:', token);  // Debug log to check the token
+    return token;
+  };
+
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(' https://taskmanagementb.vercel.app/api/tasks');
+      const token = getToken();
+      const response = await axios.get('http://127.0.0.1:8000/api/tasks', {
+        headers: {
+         'Content-Type' : 'application/json',
+  'Accept' : 'application/json',
+  'Authorization' : `Bearer ${token}`
+        },
+        withCredentials: true,
+      });
       setTasks(response.data);
       setError(null);
     } catch (err) {
@@ -32,7 +46,12 @@ const TaskList = ({ darkMode }) => {
 
   const addTask = async (task) => {
     try {
-      const response = await axios.post(' https://taskmanagementb.vercel.app/api/tasks', task);
+      const token = getToken();
+      const response = await axios.post('http://127.0.0.1:8000/api/tasks', task, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setTasks([...tasks, response.data]);
       setNotification('Task added successfully!');
     } catch (err) {
@@ -43,7 +62,12 @@ const TaskList = ({ darkMode }) => {
 
   const updateTask = async (id, status) => {
     try {
-      const response = await axios.put(` https://taskmanagementb.vercel.app/api/tasks/${id}`, { status });
+      const token = getToken();
+      const response = await axios.put(`http://127.0.0.1:8000/api/tasks/${id}`, { status }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setTasks(tasks.map(task => task.id === id ? response.data : task));
       setNotification('Task updated successfully!');
     } catch (err) {
@@ -59,7 +83,12 @@ const TaskList = ({ darkMode }) => {
     }
 
     try {
-      await axios.delete(` https://taskmanagementb.vercel.app/api/tasks/${id}`);
+      const token = getToken();
+      await axios.delete(`http://127.0.0.1:8000/api/tasks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setTasks(tasks.filter(task => task.id !== id));
       setNotification('Task deleted successfully!');
     } catch (err) {
