@@ -1,49 +1,36 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, Form
+from fastapi import APIRouter, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
-from app.schemas.user import User, UserCreate
-from app.services.User import UserService
-from app.database import get_db
+from app.database import SessionLocal
+from app.schemas.user import UserCreate, UserResponse
+from app.services.User import create_user, authenticate_user, get_user
 
 router = APIRouter()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-sessions = {}
-
-def authenticate_user(db: Session, username: str, password: str):
-    user = UserService.get_user_by_username(db, username)
-    if not user or user.password != password:
-        return False
-    return user
+@router.post("/register", response_model=UserResponse)
+async def register(user: UserCreate, db: Session = Depends(get_db)):
+    existing_user = get_user(db, user.username)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    new_user = create_user(db, user)
+    return new_user
 
 @router.post("/login")
-def login(
-    response: Response,
-    username: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
-):
+async def login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     user = authenticate_user(db, username, password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
-    session_id = str(user.id)
-    sessions[session_id] = user
-    response.set_cookie(key="session_id", value=session_id)
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     return {"message": "Login successful"}
 
-@router.post("/register", response_model=User)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = UserService.get_user_by_username(db, user.username)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
-    return UserService.create_user(db, user)
-
-def get_current_user(request: Request, db: Session = Depends(get_db)):
-    session_id = request.cookies.get("session_id")
-    if session_id is None or session_id not in sessions:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    user = sessions[session_id]
+@router.get("/current_user", response_model=UserResponse)
+async def get_current_user(username: str, db: Session = Depends(get_db)):
+    user = get_user(db, username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
-
-@router.get("/users/me", response_model=User)
-def read_users_me(current_user: User = Depends(get_current_user)):
-    return current_user
