@@ -19,3 +19,4 @@ app.add_middleware(
 )
 
 app.include_router(task.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
