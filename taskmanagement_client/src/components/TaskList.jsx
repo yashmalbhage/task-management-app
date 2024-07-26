@@ -9,6 +9,8 @@ const TaskList = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [notification, setNotification] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -17,9 +19,7 @@ const TaskList = ({ darkMode }) => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://taskmanagementb.vercel.app/api/tasks', {
-        withCredentials: true // Important for sending cookies with the request
-      });
+      const response = await axios.get('https://taskmanagementb.vercel.app/api/tasks');
       setTasks(response.data);
       setError(null);
     } catch (err) {
@@ -32,10 +32,9 @@ const TaskList = ({ darkMode }) => {
 
   const addTask = async (task) => {
     try {
-      const response = await axios.post('https://taskmanagementb.vercel.app/api/tasks', task, {
-        withCredentials: true // Important for sending cookies with the request
-      });
+      const response = await axios.post('https://taskmanagementb.vercel.app/api/tasks', task);
       setTasks([...tasks, response.data]);
+      setNotification('Task added successfully!');
     } catch (err) {
       console.error('Failed to add task:', err);
       setError('Failed to add task. Please try again.');
@@ -44,10 +43,9 @@ const TaskList = ({ darkMode }) => {
 
   const updateTask = async (id, status) => {
     try {
-      const response = await axios.put(`https://taskmanagementb.vercel.app/api/tasks/${id}`, { status }, {
-        withCredentials: true // Important for sending cookies with the request
-      });
+      const response = await axios.put(`https://taskmanagementb.vercel.app/api/tasks/${id}`, { status });
       setTasks(tasks.map(task => task.id === id ? response.data : task));
+      setNotification('Task updated successfully!');
     } catch (err) {
       console.error('Failed to update task:', err);
       setError('Failed to update task. Please try again.');
@@ -55,14 +53,20 @@ const TaskList = ({ darkMode }) => {
   };
 
   const deleteTask = async (id) => {
+    if (confirmDelete !== id) {
+      setConfirmDelete(id);
+      return;
+    }
+
     try {
-      await axios.delete(`https://taskmanagementb.vercel.app/api/task/${id}`, {
-        withCredentials: true // Important for sending cookies with the request
-      });
+      await axios.delete(`https://taskmanagementb.vercel.app/api/tasks/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
+      setNotification('Task deleted successfully!');
     } catch (err) {
       console.error('Failed to delete task:', err);
       setError('Failed to delete task. Please try again.');
+    } finally {
+      setConfirmDelete(null);
     }
   };
 
@@ -79,7 +83,37 @@ const TaskList = ({ darkMode }) => {
 
   return (
     <div className="space-y-6">
-      {error && <div className={`${darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-700'} border border-red-400 px-4 py-3 rounded relative`} role="alert">{error}</div>}
+      {notification && (
+        <div className={`${darkMode ? 'bg-green-900 text-green-200' : 'bg-green-100 text-green-700'} border border-green-400 px-4 py-3 rounded relative`} role="alert">
+          {notification}
+        </div>
+      )}
+
+      {error && (
+        <div className={`${darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-700'} border border-red-400 px-4 py-3 rounded relative`} role="alert">
+          {error}
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'} border border-gray-300 p-4 rounded relative`}>
+          <p>Are you sure you want to delete this task?</p>
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={() => deleteTask(confirmDelete)}
+              className="bg-red-500 text-white py-2 px-4 rounded mr-2"
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => setConfirmDelete(null)}
+              className="bg-gray-500 text-white py-2 px-4 rounded"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="mb-4">
         <select
