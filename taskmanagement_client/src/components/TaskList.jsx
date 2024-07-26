@@ -19,7 +19,7 @@ const TaskList = ({ darkMode }) => {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://taskmanagementb.vercel.app/api/tasks');
+      const response = await axios.get(' http://127.0.0.1:8000/api/tasks');
       setTasks(response.data);
       setError(null);
     } catch (err) {
@@ -32,7 +32,7 @@ const TaskList = ({ darkMode }) => {
 
   const addTask = async (task) => {
     try {
-      const response = await axios.post('https://taskmanagementb.vercel.app/api/tasks', task);
+      const response = await axios.post(' http://127.0.0.1:8000/api/tasks', task);
       setTasks([...tasks, response.data]);
       setNotification('Task added successfully!');
     } catch (err) {
@@ -43,7 +43,7 @@ const TaskList = ({ darkMode }) => {
 
   const updateTask = async (id, status) => {
     try {
-      const response = await axios.put(`https://taskmanagementb.vercel.app/api/tasks/${id}`, { status });
+      const response = await axios.put(` http://127.0.0.1:8000/api/tasks/${id}`, { status });
       setTasks(tasks.map(task => task.id === id ? response.data : task));
       setNotification('Task updated successfully!');
     } catch (err) {
@@ -59,7 +59,7 @@ const TaskList = ({ darkMode }) => {
     }
 
     try {
-      await axios.delete(`https://taskmanagementb.vercel.app/api/tasks/${id}`);
+      await axios.delete(` http://127.0.0.1:8000/api/tasks/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
       setNotification('Task deleted successfully!');
     } catch (err) {
